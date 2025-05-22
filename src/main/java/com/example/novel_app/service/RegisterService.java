@@ -10,7 +10,6 @@ import com.example.novel_app.repository.AuthRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
@@ -19,7 +18,6 @@ import java.util.Set;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class RegisterService {
     private final AuthRepository authRepository;
-    private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
 
     public AccountDTO registerUser(RegisterRequest registerRequest) {
@@ -27,16 +25,15 @@ public class RegisterService {
         if (user != null) {
             throw new AppException(ErrorCode.ACCOUNT_EXISTED, HttpStatus.BAD_REQUEST);
         }
+        
         User newUser = new User();
         newUser.setFullName(registerRequest.getFullName());
-        newUser.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-        // Consider encrypting the
-        // password
+        newUser.setPassword(registerRequest.getPassword()); // Lưu mật khẩu dạng plaintext
         newUser.setEmail(registerRequest.getEmail());
         newUser.setRoles(Set.of("USER"));
+        
         User savedUser = authRepository.save(newUser);
         return userMapper.toAccountDTO(savedUser);
-
     }
 
     public boolean findEmailExisting(String email) {
@@ -46,5 +43,4 @@ public class RegisterService {
         }
         return false;
     }
-
 }

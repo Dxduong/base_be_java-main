@@ -1,6 +1,5 @@
 package com.example.novel_app.controller.webcontroller;
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,13 +30,11 @@ public class PasswordController {
         // Giả sử mật khẩu hiện tại đúng (trong thực tế, bạn cần kiểm tra mật khẩu hiện tại từ cơ sở dữ liệu)
         String storedPassword = "oldPassword123";  // Mật khẩu cũ giả định
 
-        // Sử dụng BCrypt để mã hóa mật khẩu
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        if (encoder.matches(currentPassword, storedPassword)) {
+        // So sánh mật khẩu trực tiếp không qua mã hóa
+        if (currentPassword.equals(storedPassword)) {
             // Mật khẩu đúng, cập nhật mật khẩu mới
-            String encodedNewPassword = encoder.encode(newPassword);
             // Lưu mật khẩu mới vào cơ sở dữ liệu (ví dụ: sử dụng một dịch vụ UserService)
-            // userService.updatePassword(encodedNewPassword);
+            // userService.updatePassword(newPassword);
 
             return "redirect:/change-password?success=Password changed successfully";
         } else {

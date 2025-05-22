@@ -1,6 +1,6 @@
 package com.example.novel_app.model;
 
-import ch.qos.logback.core.model.INamedModel;
+// import ch.qos.logback.core.model.INamedModel;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;

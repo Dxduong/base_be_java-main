@@ -11,7 +11,6 @@ import com.example.novel_app.exception.ErrorCode;
 import com.example.novel_app.mapper.UserMapper;
 import com.example.novel_app.model.User;
 import com.example.novel_app.repository.AuthRepository;
-import com.example.novel_app.utils.AesEncryptionUtil;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
@@ -23,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -43,32 +41,19 @@ public class AuthentiationService {
     @Value("${jwt.signerKey}")
     private String SCRET_KEY;
     private final AuthRepository authRepository;
-    private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
 
     public AccountDTO login(LoginRequest loginRequest) {
         User user = authRepository.findByEmail(loginRequest.getEmail());
-        try {
-            String plaintextPassword = AesEncryptionUtil.decrypt(loginRequest.getPassword());
-            if (user == null) {
-                throw new AppException(ErrorCode.ACCOUNT_NOT_EXIST, HttpStatus.UNAUTHORIZED);
-            }
-            if (!passwordEncoder.matches(plaintextPassword, user.getPassword())) {
-                throw new AppException(ErrorCode.ACCOUNT_NOT_EXIST, HttpStatus.UNAUTHORIZED);
-            }
-            AccountDTO accountDTO = userMapper.toAccountDTO(user);
-            try {
-                String plaintextEmail = AesEncryptionUtil.decrypt(accountDTO.getEmail());
-                accountDTO.setToken(generateToken(user));
-                accountDTO.setEmail(plaintextEmail);
-                return accountDTO;
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        if (user == null) {
+            throw new AppException(ErrorCode.ACCOUNT_NOT_EXIST, HttpStatus.UNAUTHORIZED);
         }
-
+        if (!loginRequest.getPassword().equals(user.getPassword())) {
+            throw new AppException(ErrorCode.ACCOUNT_NOT_EXIST, HttpStatus.UNAUTHORIZED);
+        }
+        AccountDTO accountDTO = userMapper.toAccountDTO(user);
+        accountDTO.setToken(generateToken(user));
+        return accountDTO;
     }
 
     public AccountDTO changePassword(ChangePasswordRequest changePasswordRequest) {
@@ -76,20 +61,12 @@ public class AuthentiationService {
         if (user == null) {
             throw new AppException(ErrorCode.ACCOUNT_NOT_EXIST, HttpStatus.UNAUTHORIZED);
         }
-        try {
-            String plaintextCurrentPassword =
-                    AesEncryptionUtil.decrypt(changePasswordRequest.getCurrentPassword());
-            String plaintextNewPassword =
-                    AesEncryptionUtil.decrypt(changePasswordRequest.getNewPassword());
-            String hashedPassword = user.getPassword();
-            if (passwordEncoder.matches(plaintextCurrentPassword, hashedPassword)) {
-                throw new AppException(ErrorCode.PASSWORD_NOT_CORRECT, HttpStatus.UNAUTHORIZED);
-            }
-            user.setPassword(passwordEncoder.encode(plaintextNewPassword));
-            return userMapper.toAccountDTO(authRepository.save(user));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        
+        if (!changePasswordRequest.getCurrentPassword().equals(user.getPassword())) {
+            throw new AppException(ErrorCode.PASSWORD_NOT_CORRECT, HttpStatus.UNAUTHORIZED);
         }
+        user.setPassword(changePasswordRequest.getNewPassword());
+        return userMapper.toAccountDTO(authRepository.save(user));
     }
 
     public AccountDTO updateInfor(UpdateInforRequest updateInforRequest) {
@@ -97,20 +74,12 @@ public class AuthentiationService {
         if (user == null) {
             throw new AppException(ErrorCode.ACCOUNT_NOT_EXIST, HttpStatus.UNAUTHORIZED);
         }
-        try {
-            String plaintextPassword =
-                    AesEncryptionUtil.decrypt(updateInforRequest.getPassword());
-            String plaintextFullName = AesEncryptionUtil.decrypt(updateInforRequest.getFullName());
-            String hashedPassword = user.getPassword();
-            if (!passwordEncoder.matches(plaintextPassword, hashedPassword)) {
-                throw new AppException(ErrorCode.PASSWORD_NOT_CORRECT, HttpStatus.UNAUTHORIZED);
-            }
-            user.setFullName(plaintextFullName);
-            return userMapper.toAccountDTO(authRepository.save(user));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        
+        if (!updateInforRequest.getPassword().equals(user.getPassword())) {
+            throw new AppException(ErrorCode.PASSWORD_NOT_CORRECT, HttpStatus.UNAUTHORIZED);
         }
-
+        user.setFullName(updateInforRequest.getFullName());
+        return userMapper.toAccountDTO(authRepository.save(user));
     }
 
     public String buildScope(User user) {
@@ -125,16 +94,12 @@ public class AuthentiationService {
 
     public String generateToken(User user) {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS256);
-        // subject : doi tuong cua token
-        // issuse : ten to chuc
-
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .subject(user.getEmail()).issuer("novel_app")
                 .issueTime(new Date())
-                .expirationTime(new Date(Instant.now().plus(15, ChronoUnit.SECONDS)
+                .expirationTime(new Date(Instant.now().plus(15, ChronoUnit.DAYS)
                         .toEpochMilli()))
                 .claim("scope", buildScope(user))
-                // add more claim
                 .build();
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
         JWSObject jwsObject = new JWSObject(header, payload);
@@ -147,7 +112,6 @@ public class AuthentiationService {
         return jwsObject.serialize();
     }
 
-
     public IntrospectResponse verifyToken(IntroSpectRequest introSpectRequest) {
         var token = introSpectRequest.getToken();
         try {
@@ -156,7 +120,6 @@ public class AuthentiationService {
             Date expityTime = signedJWT.getJWTClaimsSet().getExpirationTime();
             var verified = signedJWT.verify(verifier);
             return new IntrospectResponse(verified && expityTime.after(new Date()));
-
         }  catch (JOSEException e) {
             throw new RuntimeException(e);
         } catch (ParseException e) {
@@ -168,7 +131,6 @@ public class AuthentiationService {
         try {
             SignedJWT signedJWT = SignedJWT.parse(token);
             return signedJWT.getJWTClaimsSet().getSubject();
-
         } catch (ParseException e) {
             throw new AppException(ErrorCode.TOKEN_INVALID, HttpStatus.UNAUTHORIZED);
         }
@@ -176,21 +138,16 @@ public class AuthentiationService {
 
     public List<String> getScopesFromToken(String token) {
         try {
-            // Parse token để trích xuất payload
             SignedJWT signedJWT = SignedJWT.parse(token);
-
-            // Lấy giá trị của claim "scope"
             String scope = (String) signedJWT.getJWTClaimsSet().getClaim("scope");
 
             if (scope == null) {
                 throw new AppException(ErrorCode.SCOPE_NOT_FOUND, HttpStatus.BAD_REQUEST);
             }
 
-            // Tách scope thành danh sách bởi ký tự " "
             return Arrays.asList(scope.split(" "));
         } catch (ParseException e) {
             throw new AppException(ErrorCode.TOKEN_INVALID, HttpStatus.UNAUTHORIZED);
         }
     }
-
 }

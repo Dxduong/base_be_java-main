@@ -23,7 +23,7 @@ public class ApiResponse<T> {
     public static class UserDTO {
         @Size(min = 10, max = 20,message = "ERROR_LENGTH")
         private String username;
-    //    private String password;
+        private String password;
         private String email;
     }
 }

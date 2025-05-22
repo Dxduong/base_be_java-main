@@ -5,7 +5,6 @@ import com.example.novel_app.dto.response.UserResponse;
 import com.example.novel_app.mapper.UserMapper;
 import com.example.novel_app.model.User;
 import com.example.novel_app.repository.AuthRepository;
-import com.example.novel_app.utils.AesEncryptionUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -28,32 +27,10 @@ public class UserService {
     public PaginatedResponse<UserResponse> getAllUsers(Pageable pageable) {
         Page<User> users = authRepository.findAll(pageable);
         List<UserResponse> userResponses = userMapper.toUserResponseList(users.getContent());
-//        userResponses = userResponses.stream().map(
-//                userResponse ->
-//        {
-//            String plaintextEmail = null;
-//            try {
-//                plaintextEmail = AesEncryptionUtil.decrypt(userResponse.getEmail());
-//            } catch (Exception e) {
-//                throw new RuntimeException(e);
-//            }
-//            userResponse.setEmail(plaintextEmail);
-//            return userResponse;
-//        }).collect(Collectors.toList());
-        userResponses = userResponses.stream().map(this::getPlaintextEmail).collect(Collectors.toList());
+        
         long totalElements = users.getTotalElements();
         long totalPages = users.getTotalPages();
         int currentPage = pageable.getPageNumber();
-        return new PaginatedResponse<>(userResponses, totalElements, currentPage,totalPages);
-    }
-    public UserResponse getPlaintextEmail(UserResponse userResponse) {
-        String plaintextEmail = null;
-        try {
-            plaintextEmail = AesEncryptionUtil.decrypt(userResponse.getEmail());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        userResponse.setEmail(plaintextEmail);
-        return userResponse;
+        return new PaginatedResponse<>(userResponses, totalElements, currentPage, totalPages);
     }
 }

@@ -29,7 +29,8 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(request -> request
                                 .requestMatchers(PublicEnpoint.PUBLIC_ENDPOINTS).permitAll()
-                                .requestMatchers(requestHttp -> requestHttp.getScheme().equals("http")).permitAll()
+                                .requestMatchers("/admin/users", "/admin/users/**").permitAll()
+                                // .requestMatchers(requestHttp -> requestHttp.getScheme().equals("http")).permitAll()
 //                        .requestMatchers(PublicEnpoint.ROLE_ADMIN).hasRole("ADMIN")
                                 .anyRequest().authenticated()
                 )

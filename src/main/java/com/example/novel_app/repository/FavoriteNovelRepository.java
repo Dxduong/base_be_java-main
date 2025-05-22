@@ -8,8 +8,7 @@ import java.util.List;
 
 @Repository
 public interface FavoriteNovelRepository extends JpaRepository<FavoriteNovel, Integer> {
-    List<FavoriteNovel> findByUserIdAndStatusFavorite(Integer userId,
-                                                boolean status);
+    List<FavoriteNovel> findByUserIdAndStatusFavorite(Integer userId, boolean status);
     FavoriteNovel findByUserIdAndNovelId(Integer userId, Integer novelId);
 
     List<FavoriteNovel> findByUserId(Integer userId);

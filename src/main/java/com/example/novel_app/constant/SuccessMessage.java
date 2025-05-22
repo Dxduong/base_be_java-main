@@ -37,10 +37,6 @@ public enum SuccessMessage {
     UPDATE_GENRE("Cập nhật thông tin thể loại"),
     DELETE_GENRE("Xóa tác thể loại"),
     TAKE_GENRE("Lấy thông tin thể loại"),
-
-    // OTP
-    CREATE_OTP("Tạo otp"),
-    AUTHORIZE_OTP("Xác thực otp")
     ;
     public String getMessage() {
         return message + " thành công";
