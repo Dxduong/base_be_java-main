@@ -36,7 +36,7 @@ import java.util.StringJoiner;
 @Slf4j
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class AuthentiationService {
+public class AuthenticationService {
     @NonFinal
     @Value("${jwt.signerKey}")
     private String SCRET_KEY;
@@ -149,5 +149,15 @@ public class AuthentiationService {
         } catch (ParseException e) {
             throw new AppException(ErrorCode.TOKEN_INVALID, HttpStatus.UNAUTHORIZED);
         }
+    }
+
+    public boolean validateToken(String token) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'validateToken'");
+    }
+
+    public Object getAuthentication(String token) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getAuthentication'");
     }
 }

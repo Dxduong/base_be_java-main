@@ -7,7 +7,7 @@ import com.example.novel_app.dto.request.LoginRequest;
 import com.example.novel_app.dto.request.UpdateInforRequest;
 import com.example.novel_app.dto.response.ApiResponse;
 import com.example.novel_app.exception.AppException;
-import com.example.novel_app.service.AuthentiationService;
+import com.example.novel_app.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(path="auth")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class AuthenticationController {
-    private final AuthentiationService authenticationService;
+    private final AuthenticationService authenticationService;
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<AccountDTO>> login(@RequestBody LoginRequest loginRequest) {
         ApiResponse<AccountDTO> apiResponse = new ApiResponse<>();

@@ -4,7 +4,7 @@ import com.example.novel_app.constant.PublicEnpoint;
 import com.example.novel_app.dto.request.IntroSpectRequest;
 import com.example.novel_app.dto.response.IntrospectResponse;
 import com.example.novel_app.model.User;
-import com.example.novel_app.service.AuthentiationService;
+import com.example.novel_app.service.AuthenticationService;
 import com.example.novel_app.service.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    private final AuthentiationService authenticationService;
+    private final AuthenticationService authenticationService;
     private final UserService userService;
 
     @Override

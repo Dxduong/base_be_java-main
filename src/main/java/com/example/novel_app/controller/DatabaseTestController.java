@@ -11,7 +11,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 @RestController
-@RequestMapping("/api/test")
+@RequestMapping("/test")
 public class DatabaseTestController {
 
     @Autowired

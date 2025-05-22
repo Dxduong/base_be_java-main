@@ -16,7 +16,7 @@ public class CorsConfig {
         corsConfiguration.addAllowedOrigin("*");
         
         // Hoặc nếu bạn muốn giới hạn chỉ cho Android Emulator và thiết bị thật
-        corsConfiguration.addAllowedOrigin("http://192.168.0.102"); // Android Emulator
+        corsConfiguration.addAllowedOrigin("http://192.168.85.23"); // Android Emulator
         corsConfiguration.addAllowedOrigin("http://localhost:8080"); // Kết nối qua USB debugging
         // corsConfiguration.addAllowedOrigin("http://<your-local-ip>"); // Kết nối qua mạng LAN
         

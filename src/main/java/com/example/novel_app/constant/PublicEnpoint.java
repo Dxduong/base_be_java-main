@@ -6,16 +6,17 @@ import org.springframework.stereotype.Component;
 public class PublicEnpoint {
         public final static String[] PUBLIC_ENDPOINTS =
                 {
-                        "/api/v1/auth/login",
-                        "/api/v1/auth/register",
-                        "/api/v1/test",
-                        "/api/v1/admin/users",
-                        "/web/auth/change-password"
+                        "/auth/register",
+                        "/auth/login",
+                        "/test/db-connection",
+                        "/admin/users",
+                        "/web/auth/change-password",
+                        
                 };
-        public final static String[] ROLE_ADMIN = {
-                "/api/v1/**"
-        };
-        public final static String[] ROLE_USER = {
-                "/api/v1/**"
-        };
+        // public final static String[] ROLE_ADMIN = {
+        //         "/api/v1/**"
+        // };
+        // public final static String[] ROLE_USER = {
+        //         "/api/v1/**"
+        // };
 }
